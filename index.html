@@ -13,7 +13,7 @@
 <title>산토리니</title>
 <style>
 :root{
-  --bg:#f4efe4; --ink:#1f2a3a; --muted:#6b7280; --card:#ffffff;
+  --bg:#f4efe4; --ink:#1f2a3a; --muted:#6b7280; --card:#ffffff; --soft:#f0ece3;
   --sea:#2f5fa8; --sea-d:#1f437e;
   --p0:#e0703a; --p0l:#f6a77c; --p0d:#9c4119;
   --p1:#6b4fbf; --p1l:#a690e8; --p1d:#3d2a85;
@@ -34,12 +34,29 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
 .title{display:flex;align-items:baseline;gap:10px}
 h1{margin:0;font-size:26px;color:var(--sea);letter-spacing:.03em}
 .title small{color:var(--muted);font-size:13px}
-.status{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:16px;
-  padding:12px 16px;min-height:68px;box-shadow:0 1px 0 rgba(0,0,0,.05),0 4px 14px rgba(31,42,58,.07)}
+.title .mode{margin-left:auto;font-size:12px;font-weight:700;color:var(--sea);background:#dfe8f6;border-radius:99px;padding:4px 10px}
+.card{background:var(--card);border-radius:16px;box-shadow:0 1px 0 rgba(0,0,0,.05),0 4px 14px rgba(31,42,58,.07)}
+.status{display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:68px}
 .chip{width:30px;height:30px;border-radius:50%;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
 .chip.p0{background:var(--p0)} .chip.p1{background:var(--p1)}
 .status .t{font-size:18px;font-weight:700;line-height:1.3}
-.status .s{font-size:14px;color:var(--muted);margin-top:2px}
+.status .s{font-size:14px;color:var(--muted);margin-top:2px;line-height:1.4}
+
+.gods{display:none;flex-direction:column;padding:6px}
+.gm .gods{display:flex}
+.god{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:12px;opacity:.6;transition:opacity .2s,background .2s}
+.god.cur{opacity:1;background:var(--soft)}
+.god .chip{width:22px;height:22px;margin-top:1px}
+.god b{display:block;font-size:15px}
+.god span{display:block;font-size:13px;color:var(--muted);line-height:1.4;margin-top:1px}
+
+.actions{display:none;gap:8px;min-height:46px}
+.gm .actions{display:flex}
+.actions button{flex:1;background:#fff7e6;color:#8a5a00;box-shadow:inset 0 0 0 2px #f1cf86}
+.actions button.on{background:var(--build);color:#fff;box-shadow:none}
+.actions button.go{background:#e8f6ee;color:#156b3f;box-shadow:inset 0 0 0 2px #9fd8b8}
+.actions .ph{flex:1;border-radius:12px;border:2px dashed #e2dccd;display:flex;align-items:center;justify-content:center;font-size:13px;color:#b7ad97}
+
 .btns{display:flex;gap:8px}
 button{font:inherit;font-size:16px;font-weight:600;border:0;border-radius:12px;padding:10px 16px;min-height:46px;
   background:var(--card);color:var(--ink);cursor:pointer;
@@ -51,10 +68,9 @@ button.primary{background:var(--sea);color:#fff}
 .legend{display:none;gap:14px;font-size:13px;color:var(--muted);align-items:center;flex-wrap:wrap}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:5px}
 
-.wrap{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+.wrap{flex:1;min-height:0;min-width:0;width:100%;display:flex;align-items:center;justify-content:center}
 .board{
-  --size:min(calc(100vw - 32px), calc(100vh - 250px), 820px);
-  --size:min(calc(100vw - 32px), calc(100dvh - 250px), 820px);
+  --size:min(calc(100vw - 32px), calc(100vh - 260px), 820px);
   width:var(--size);height:var(--size);display:grid;
   grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);
   gap:calc(var(--size)*.014);padding:calc(var(--size)*.022);
@@ -62,13 +78,14 @@ button.primary{background:var(--sea);color:#fff}
   box-shadow:0 10px 30px rgba(31,67,126,.35), inset 0 2px 0 rgba(255,255,255,.15)}
 @media (orientation:landscape){
   .app{flex-direction:row;align-items:stretch;justify-content:center;gap:24px}
-  .panel{width:280px;flex:none;justify-content:center}
+  .panel{width:290px;flex:none;justify-content:center}
   .btns{flex-direction:column}
   .legend{display:flex}
-  .wrap{flex:0 1 auto}
-  .board{
-    --size:min(calc(100vh - 32px), calc(100vw - 340px), 900px);
-    --size:min(calc(100dvh - 32px), calc(100vw - 340px), 900px)}
+  .board{--size:min(calc(100vh - 32px), calc(100vw - 350px), 900px)}
+}
+@supports (container-type:size){
+  .wrap{container-type:size}
+  .board{--size:min(100cqw,100cqh,900px)}
 }
 
 .cell{position:relative;border-radius:8%;padding:7%;display:flex;cursor:pointer;
@@ -108,27 +125,42 @@ button.primary{background:var(--sea);color:#fff}
 
 .overlay{position:fixed;inset:0;background:rgba(20,28,40,.45);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
 .overlay.show{display:flex}
-.modal{background:var(--card);border-radius:22px;padding:24px;width:min(460px,100%);max-height:90vh;overflow:auto;
-  box-shadow:0 20px 60px rgba(0,0,0,.3);animation:rise .25s ease-out}
+.modal{background:var(--card);border-radius:22px;padding:24px;width:min(480px,100%);max-height:90vh;max-height:90dvh;overflow:auto;
+  -webkit-overflow-scrolling:touch;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:rise .25s ease-out}
 .modal h2{margin:0 0 16px;font-size:22px}
 .modal h3{margin:18px 0 8px;font-size:15px;color:var(--muted);font-weight:600}
 .seg{display:flex;gap:8px}
-.seg button{flex:1;background:#f0ece3;box-shadow:none}
+.seg button{flex:1;background:var(--soft);box-shadow:none;padding:10px 8px}
 .seg button.on{background:var(--sea);color:#fff}
+.pick-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.pick-row label{width:44px;font-weight:700;font-size:15px}
+.pick-row select{flex:1;font:inherit;font-size:16px;padding:10px 12px;border-radius:12px;border:2px solid #e2dccd;background:#fff;color:var(--ink);min-height:46px}
+#godOpts{display:none}
+#godOpts.show{display:block}
 .modal .row{display:flex;gap:10px;margin-top:22px}
 .modal .row button{flex:1}
 .modal p,.modal li{font-size:15px;line-height:1.6;-webkit-user-select:text;user-select:text}
 .modal ol{padding-left:20px;margin:0}
+.glist{display:flex;flex-direction:column;gap:8px}
+.glist div{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.5}
+.glist b{font-size:15px}
 .win{text-align:center}
 .win .big{font-size:30px;font-weight:800;margin:6px 0}
 .win .chip{width:56px;height:56px;margin:0 auto}
+.reveal{display:flex;flex-direction:column;gap:12px;text-align:left}
+.reveal .rv{display:flex;gap:12px;align-items:center;background:var(--soft);border-radius:16px;padding:14px}
+.reveal .em{font-size:36px;line-height:1}
+.reveal b{font-size:17px}
+.reveal span{display:block;font-size:14px;color:var(--muted);line-height:1.45;margin-top:2px}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app">
   <aside class="panel">
-    <div class="title"><h1>산토리니</h1><small>Santorini</small></div>
-    <div class="status"><div class="chip p0" id="chip"></div><div><div class="t" id="st"></div><div class="s" id="ss"></div></div></div>
+    <div class="title"><h1>산토리니</h1><small>Santorini</small><span class="mode" id="modeTag"></span></div>
+    <div class="card status"><div class="chip p0" id="chip"></div><div><div class="t" id="st"></div><div class="s" id="ss"></div></div></div>
+    <div class="card gods" id="gods"></div>
+    <div class="actions" id="actions"></div>
     <div class="btns">
       <button id="bNew" class="primary">새 게임</button>
       <button id="bUndo">되돌리기</button>
@@ -141,6 +173,13 @@ button.primary{background:var(--sea);color:#fff}
 
 <div class="overlay" id="ovNew"><div class="modal">
   <h2>새 게임</h2>
+  <h3>게임 모드</h3>
+  <div class="seg" id="segRules"><button data-v="basic">기본</button><button data-v="gods">신 카드</button></div>
+  <div id="godOpts">
+    <h3>신 카드 선택</h3>
+    <div class="pick-row"><label id="lbl0">주황</label><select id="sel0"></select></div>
+    <div class="pick-row"><label id="lbl1">보라</label><select id="sel1"></select></div>
+  </div>
   <h3>대전 방식</h3>
   <div class="seg" id="segMode">
     <button data-v="pvp">2인 플레이</button><button data-v="ai1">AI 쉬움</button><button data-v="ai2">AI 보통</button>
@@ -161,7 +200,16 @@ button.primary{background:var(--sea);color:#fff}
     <li><b>패배</b> — 내 차례에 움직일 수 있는 일꾼이 없으면 집니다.</li>
   </ol>
   <p style="color:var(--muted)">팁: 상대가 2층에 서 있고 옆에 3층이 있다면, 그 3층에 돔을 올려 막으세요!</p>
+  <h3>신 카드 (신 카드 모드)</h3>
+  <p style="margin-top:0">각자 신 하나의 특수 능력을 가지고 시작합니다. 노란 능력 버튼이 나타나면 쓸지 말지 고를 수 있어요.</p>
+  <div class="glist" id="glist"></div>
   <div class="row"><button id="bRulesClose" class="primary">닫기</button></div>
+</div></div>
+
+<div class="overlay" id="ovReveal"><div class="modal">
+  <h2>이번 판의 신</h2>
+  <div class="reveal" id="reveal"></div>
+  <div class="row"><button id="bReveal" class="primary">시작하기</button></div>
 </div></div>
 
 <div class="overlay" id="ovWin"><div class="modal win">
@@ -172,88 +220,229 @@ button.primary{background:var(--sea);color:#fff}
 </div></div>
 
 <script>
-// ===== 게임 로직 =====
+// ===================== 신 카드 =====================
+const GODS={
+  apollo:    {n:'아폴로',e:'☀️',d:'상대 일꾼이 있는 칸으로도 이동할 수 있어요. 상대 일꾼은 내가 떠난 칸으로 옮겨져요.'},
+  artemis:   {n:'아르테미스',e:'🏹',d:'한 번 더 이동할 수 있어요. 단, 처음 칸으로 되돌아갈 수는 없어요.'},
+  athena:    {n:'아테나',e:'🦉',d:'내 일꾼이 위로 올라갔다면, 상대는 다음 차례에 올라갈 수 없어요.'},
+  atlas:     {n:'아틀라스',e:'🌍',d:'아무 층 위에나 돔을 지을 수 있어요.'},
+  demeter:   {n:'데메테르',e:'🌾',d:'한 번 더 지을 수 있어요. 단, 같은 칸에는 안 돼요.'},
+  hephaestus:{n:'헤파이스토스',e:'🔨',d:'처음 지은 칸에 한 층 더 지을 수 있어요. 돔은 안 돼요.'},
+  minotaur:  {n:'미노타우로스',e:'🐂',d:'상대 일꾼을 같은 방향으로 한 칸 밀어내고 그 칸에 들어갈 수 있어요. 밀려날 칸이 비어 있어야 해요.'},
+  pan:       {n:'판',e:'🐐',d:'2층 이상 아래로 뛰어내려도 승리해요.'},
+  prometheus:{n:'프로메테우스',e:'🔥',d:'올라가지 않는다면, 이동하기 전에도 한 번 지을 수 있어요.'},
+};
+const GOD_KEYS=Object.keys(GODS);
+
+// ===================== 규칙 엔진 =====================
 const ADJ=[];
 for(let i=0;i<25;i++){const r=i/5|0,c=i%5,a=[];
   for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const rr=r+dr,cc=c+dc;
     if(rr>=0&&rr<5&&cc>=0&&cc<5)a.push(rr*5+cc)}ADJ.push(a)}
+const R=i=>i/5|0, C=i=>i%5;
+let G=[null,null];   // 현재 게임의 신 (기본 모드는 null)
 
-function occ(st,i){return st.w[0][0]===i||st.w[0][1]===i||st.w[1][0]===i||st.w[1][1]===i}
-function movesFrom(st,from){return ADJ[from].filter(j=>!occ(st,j)&&st.h[j]<4&&st.h[j]-st.h[from]<=1)}
-function buildsFrom(st,pos){return ADJ[pos].filter(j=>!occ(st,j)&&st.h[j]<4)}
-function canMove(st,p){return st.w[p].some(f=>f>=0&&movesFrom(st,f).length>0)}
-function hasWin(st,p){for(const f of st.w[p]){if(st.h[f]!==2)continue;for(const n of ADJ[f])if(st.h[n]===3&&!occ(st,n))return true}return false}
+function owner(st,i){if(st.w[0][0]===i||st.w[0][1]===i)return 0;if(st.w[1][0]===i||st.w[1][1]===i)return 1;return -1}
+function occ(st,i){return owner(st,i)>=0}
+function cloneSt(st){return {h:st.h.slice(),w:[st.w[0].slice(),st.w[1].slice()],noUp:st.noUp}}
+function pushCell(from,to){const r=2*R(to)-R(from),c=2*C(to)-C(from);return (r<0||r>4||c<0||c>4)?-1:r*5+c}
 
-function actions(st,p){const out=[];
-  for(let wi=0;wi<2;wi++){const from=st.w[p][wi];
-    for(const to of movesFrom(st,from)){
-      if(st.h[to]===3){out.push({wi,to,b:-1,win:true});continue}
-      st.w[p][wi]=to;for(const b of buildsFrom(st,to))out.push({wi,to,b});st.w[p][wi]=from}}
+// ctx: {noUpSelf: 올라가기 금지(프로메테우스), notTo: 금지 칸(아르테미스)}
+function moveTargets(st,p,wi,ctx){
+  const from=st.w[p][wi],hf=st.h[from],g=G[p],out=[];
+  for(const j of ADJ[from]){
+    const hj=st.h[j];
+    if(hj>=4||hj-hf>1)continue;
+    if(hj>hf&&(st.noUp===p||(ctx&&ctx.noUpSelf)))continue;
+    if(ctx&&ctx.notTo===j)continue;
+    const o=owner(st,j);
+    if(o===p)continue;
+    if(o===1-p){
+      if(g==='apollo')out.push(j);
+      else if(g==='minotaur'){const k=pushCell(from,j);if(k>=0&&!occ(st,k)&&st.h[k]<4)out.push(j)}
+      continue}
+    out.push(j)}
   return out}
-function apply(st,p,a){const s={h:st.h.slice(),w:[st.w[0].slice(),st.w[1].slice()]};s.w[p][a.wi]=a.to;if(a.b>=0)s.h[a.b]++;return s}
+// 이동 실행 (상태 변경). 승리하면 'up' 또는 'pan' 반환
+function doMove(st,p,wi,to){
+  const from=st.w[p][wi],o=owner(st,to);
+  if(o>=0&&o!==p){const owi=st.w[o].indexOf(to);
+    st.w[o][owi]=G[p]==='apollo'?from:pushCell(from,to)}
+  st.w[p][wi]=to;
+  const hf=st.h[from],ht=st.h[to];
+  if(ht===3&&hf<3)return 'up';
+  if(G[p]==='pan'&&hf-ht>=2)return 'pan';
+  return ''}
+// ctx: {not: 제외 칸(데메테르), only: 지정 칸(헤파이스토스)}
+function buildTargets(st,pos,ctx){
+  return ADJ[pos].filter(j=>!occ(st,j)&&st.h[j]<4&&(!ctx||(ctx.not!==j&&(ctx.only===undefined||ctx.only===j))))}
+function canMoveAny(st,p){for(let wi=0;wi<2;wi++)if(st.w[p][wi]>=0&&moveTargets(st,p,wi).length)return true;return false}
+function endNoUp(st,p,up){if(G[p]==='athena')st.noUp=up?1-p:-1;else if(st.noUp===p)st.noUp=-1}
+
+// 다음 차례에 즉시 이길 수 있는가 (건설 없이 이동만 확인)
+function canWinNow(st,p){const g=G[p];
+  for(let wi=0;wi<2;wi++){const from=st.w[p][wi],hf=st.h[from];
+    for(const to of moveTargets(st,p,wi)){const ht=st.h[to];
+      if((ht===3&&hf<3)||(g==='pan'&&hf-ht>=2))return true;
+      if(g==='artemis'){const s=cloneSt(st);doMove(s,p,wi,to);
+        for(const t2 of moveTargets(s,p,wi,{notTo:from}))if(s.h[t2]===3&&ht<3)return true}}}
+  return false}
+
+// 한 차례 전체(능력 포함)의 모든 경우를 나열
+function genTurns(st,p){const out=[],g=G[p];
+  for(let wi=0;wi<2;wi++){
+    const start0=st.w[p][wi];
+    const pres=g==='prometheus'?[-1,...buildTargets(st,start0)]:[-1];
+    for(const pre of pres){
+      let s0=st;if(pre>=0){s0=cloneSt(st);s0.h[pre]++}
+      for(const m1 of moveTargets(s0,p,wi,{noUpSelf:pre>=0})){
+        const s1=cloneSt(s0);const up1=s1.h[m1]>s1.h[start0];const w1=doMove(s1,p,wi,m1);
+        const base={wi,pre,m1,m2:-1,b1:-1,dome:false,b2:-1};
+        if(w1){out.push({t:base,s:s1,win:true});continue}
+        const opts=[[-1,s1,up1]];
+        if(g==='artemis')for(const m2 of moveTargets(s1,p,wi,{notTo:start0})){
+          const s2=cloneSt(s1);const up2=s2.h[m2]>s2.h[m1];const w2=doMove(s2,p,wi,m2);
+          if(w2){out.push({t:{...base,m2},s:s2,win:true});continue}
+          opts.push([m2,s2,up1||up2])}
+        for(const [m2,sm,up] of opts){const pos=sm.w[p][wi];
+          for(const b1 of buildTargets(sm,pos)){
+            const domes=g==='atlas'&&sm.h[b1]<3?[false,true]:[false];
+            for(const dome of domes){
+              const sb=cloneSt(sm);sb.h[b1]=dome?4:sb.h[b1]+1;
+              const t={...base,m2,b1,dome};
+              out.push({t,s:sb,up});
+              if(g==='demeter')for(const b2 of buildTargets(sb,pos,{not:b1})){const s3=cloneSt(sb);s3.h[b2]++;out.push({t:{...t,b2},s:s3,up})}
+              if(g==='hephaestus'&&sb.h[b1]<3){const s3=cloneSt(sb);s3.h[b1]++;out.push({t:{...t,b2:b1},s:s3,up})}
+            }}}}}}
+  for(const o of out)if(!o.win)endNoUp(o.s,p,o.up);
+  return out}
 
 function evaluate(st,p){let sc=0;
   for(const side of [p,1-p]){const sign=side===p?1:-1;let s=0;
     for(const pos of st.w[side]){const hh=st.h[pos];s+=hh*hh*12+hh*8;
-      const r=pos/5|0,c=pos%5;s+=(4-Math.abs(r-2)-Math.abs(c-2))*2;
+      s+=(4-Math.abs(R(pos)-2)-Math.abs(C(pos)-2))*2;
       for(const n of ADJ[pos]){if(occ(st,n)||st.h[n]>=4)continue;const d=st.h[n]-hh;
         if(d<=1)s+=1;if(d===1)s+=4*st.h[n];if(hh===2&&st.h[n]===3)s+=40}}
     sc+=sign*s}
   return sc}
 
 function aiChoose(st,p,level){
-  const acts=actions(st,p);if(!acts.length)return null;
-  const w=acts.find(a=>a.win);if(w)return w;
-  const q=1-p;let best=null,bs=-Infinity;
-  for(const a of acts){const s2=apply(st,p,a);let sc;
-    if(!canMove(s2,q))sc=1e6;
-    else if(hasWin(s2,q)&&(level>=2||Math.random()<.6))sc=-1e6;
-    else if(level>=2){let mn=Infinity;
-      for(const o of actions(s2,q)){const s3=apply(s2,q,o);let v;
-        if(!canMove(s3,p))v=-1e5;else if(hasWin(s3,p))v=5e4+evaluate(s3,p);else v=evaluate(s3,p);
-        if(v<mn)mn=v;if(mn<=bs-5)break}
-      sc=mn}
-    else sc=evaluate(s2,p);
-    sc+=Math.random()*(level>=2?4:30);
-    if(sc>bs){bs=sc;best=a}}
-  return best}
+  const turns=genTurns(st,p);if(!turns.length)return null;
+  const w=turns.find(x=>x.win);if(w)return w.t;
+  const q=1-p;
+  const scored=turns.map(x=>{let sc;
+    if(!canMoveAny(x.s,q))sc=1e6;
+    else if(canWinNow(x.s,q)&&(level>=2||Math.random()<.6))sc=-1e6;
+    else sc=evaluate(x.s,p);
+    return {x,sc:sc+Math.random()*(level>=2?4:30)}});
+  scored.sort((a,b)=>b.sc-a.sc);
+  if(level<2)return scored[0].x.t;
+  const K=(G[0]||G[1])?14:28;
+  let best=scored[0],bs=-Infinity;
+  for(const c of scored.slice(0,K)){
+    if(Math.abs(c.sc)>=1e5){if(c.sc>bs){bs=c.sc;best=c}continue}
+    let mn=Infinity;
+    for(const o of genTurns(c.x.s,q)){let v;
+      if(o.win)v=-1e6;else if(!canMoveAny(o.s,p))v=-1e5;else if(canWinNow(o.s,p))v=5e4+evaluate(o.s,p);else v=evaluate(o.s,p);
+      if(v<mn)mn=v;if(mn<=bs)break}
+    if(mn===Infinity)mn=1e6;
+    mn+=Math.random()*4;if(mn>bs){bs=mn;best=c}}
+  return best.x.t}
 
 function aiPlace(st){let best=-1,bs=-Infinity;
-  for(let i=0;i<25;i++){if(occ(st,i))continue;const r=i/5|0,c=i%5;
-    const sc=(4-Math.abs(r-2)-Math.abs(c-2))+Math.random()*2.5;if(sc>bs){bs=sc;best=i}}
+  for(let i=0;i<25;i++){if(occ(st,i))continue;
+    const sc=(4-Math.abs(R(i)-2)-Math.abs(C(i)-2))+Math.random()*2.5;if(sc>bs){bs=sc;best=i}}
   return best}
 
-// ===== 화면 / 진행 =====
+// ===================== 화면 / 진행 =====================
 const NAMES=['주황','보라'];
-let S,hist=[],cfg={mode:'pvp',first:0},aiTimer=null,aiPlan=null,prevKey='';
+let S,hist=[],cfg={mode:'pvp',first:0,rules:'basic',pick:['random','random']},aiTimer=null,aiPlan=null,prevKey='';
 const AI=1;
 const $=id=>document.getElementById(id);
 const isAI=p=>cfg.mode!=='pvp'&&p===AI;
 const label=p=>cfg.mode==='pvp'?NAMES[p]:(p===AI?'AI':'나');
+const newT=()=>({wi:-1,start:-1,pre:-1,b1:-1,up:false,preMode:false,domeMode:false,locked:false});
+const anyOverlay=()=>!!document.querySelector('.overlay.show');
 
 function newGame(){cancelAI();
-  S={h:Array(25).fill(0),w:[[-1,-1],[-1,-1]],cur:cfg.first,first:cfg.first,phase:'place',sel:-1,
-     winner:-1,reason:'',lastFrom:-1,lastTo:-1,lastBuild:-1};
-  hist=[];hide('ovWin');after()}
+  let gods=[null,null];
+  if(cfg.rules==='gods'){
+    gods=cfg.pick.slice();
+    for(const k of [0,1])if(gods[k]==='random'){
+      const pool=GOD_KEYS.filter(x=>x!==gods[1-k]);gods[k]=pool[Math.random()*pool.length|0]}}
+  S={h:Array(25).fill(0),w:[[-1,-1],[-1,-1]],noUp:-1,gods,cur:cfg.first,first:cfg.first,phase:'place',
+     T:newT(),winner:-1,reason:'',lastFrom:-1,lastTo:-1,lastBuild:-1};
+  G=gods;hist=[];hide('ovWin');
+  if(cfg.rules==='gods')showReveal();
+  after()}
 function snap(){hist.push(JSON.stringify(S));if(hist.length>400)hist.shift()}
-function checkStuck(){if(!canMove(S,S.cur)){S.winner=1-S.cur;S.phase='over';S.reason=`${label(S.cur)} 쪽 일꾼이 더 이상 움직일 수 없어요.`}}
+function setLose(p,why){S.winner=1-p;S.phase='over';S.reason=why}
+function checkStuck(){if(!canMoveAny(S,S.cur))setLose(S.cur,`${label(S.cur)} 쪽 일꾼이 더 이상 움직일 수 없어요.`)}
 
-function act(i){const p=S.cur;
+function preTargets(){const p=S.cur,T=S.T;
+  return buildTargets(S,S.w[p][T.wi]).filter(b=>{const s=cloneSt(S);s.h[b]++;return moveTargets(s,p,T.wi,{noUpSelf:true}).length>0})}
+
+function targets(){const p=S.cur,T=S.T;
+  switch(S.phase){
+    case 'place':{const c=[];for(let i=0;i<25;i++)if(!occ(S,i))c.push(i);return {cells:c,cls:'can-place'}}
+    case 'move':if(T.wi<0)break;
+      if(T.preMode)return {cells:preTargets(),cls:'can-build'};
+      return {cells:moveTargets(S,p,T.wi,{noUpSelf:T.pre>=0}),cls:'can-move'};
+    case 'move2':return {cells:moveTargets(S,p,T.wi,{notTo:T.start}),cls:'can-move'};
+    case 'build':return {cells:buildTargets(S,S.w[p][T.wi]),cls:'can-build'};
+    case 'build2':{const pos=S.w[p][T.wi];
+      if(G[p]==='demeter')return {cells:buildTargets(S,pos,{not:T.b1}),cls:'can-build'};
+      return {cells:S.h[T.b1]<3?[T.b1]:[],cls:'can-build'}}}
+  return {cells:[],cls:''}}
+
+function act(i){const p=S.cur,T=S.T;
   if(S.phase==='place'){if(occ(S,i))return;snap();
     const k=S.w[p][0]<0?0:1;S.w[p][k]=i;
     if(k===1){const o=1-p;if(S.w[o][1]<0)S.cur=o;else{S.cur=S.first;S.phase='select';checkStuck()}}
     return after()}
-  if(S.phase==='select'||S.phase==='move'){
+  if(S.phase==='select'||(S.phase==='move'&&!T.locked)){
     const wi=S.w[p].indexOf(i);
-    if(wi>=0){if(S.phase==='move'&&S.sel===wi){S.sel=-1;S.phase='select'}else{S.sel=wi;S.phase='move'}return after()}
-    if(S.phase==='move'&&movesFrom(S,S.w[p][S.sel]).includes(i)){snap();
-      const from=S.w[p][S.sel];S.w[p][S.sel]=i;S.lastFrom=from;S.lastTo=i;
-      if(S.h[i]===3){S.winner=p;S.phase='over';S.reason=`${label(p)} 일꾼이 3층 정상에 올라섰어요!`}
-      else{S.phase='build';if(!buildsFrom(S,i).length){S.winner=1-p;S.phase='over';S.reason=`${label(p)} 쪽이 이동 후 건설할 곳이 없어요.`}}
-      return after()}
-    return}
-  if(S.phase==='build'){if(!buildsFrom(S,S.w[p][S.sel]).includes(i))return;snap();
-    S.h[i]++;S.lastBuild=i;S.cur=1-p;S.sel=-1;S.phase='select';checkStuck();return after()}}
+    if(wi>=0){
+      if(S.phase==='move'&&T.wi===wi){S.T=newT();S.phase='select'}
+      else{S.T=newT();S.T.wi=wi;S.T.start=i;S.phase='move'}
+      return after()}}
+  if(!targets().cells.includes(i))return;
+  snap();
+  if(S.phase==='move'&&T.preMode){S.h[i]++;T.pre=i;T.preMode=false;T.locked=true;S.lastBuild=i;return after()}
+  if(S.phase==='move'||S.phase==='move2'){
+    const from=S.w[p][T.wi];T.up=T.up||S.h[i]>S.h[from];
+    const win=doMove(S,p,T.wi,i);S.lastFrom=from;S.lastTo=i;T.locked=true;
+    if(win){S.winner=p;S.phase='over';
+      S.reason=win==='pan'?`${label(p)} 일꾼이 판의 힘으로 뛰어내렸어요!`:`${label(p)} 일꾼이 3층 정상에 올라섰어요!`;return after()}
+    if(S.phase==='move'&&G[p]==='artemis'&&moveTargets(S,p,T.wi,{notTo:T.start}).length){S.phase='move2';return after()}
+    return toBuild()}
+  if(S.phase==='build'){const dome=T.domeMode&&S.h[i]<3;
+    S.h[i]=dome?4:S.h[i]+1;T.b1=i;T.domeMode=false;S.lastBuild=i;
+    const pos=S.w[p][T.wi],g=G[p];
+    if((g==='demeter'&&buildTargets(S,pos,{not:i}).length)||(g==='hephaestus'&&S.h[i]<3)){S.phase='build2';return after()}
+    return endTurn()}
+  if(S.phase==='build2'){S.h[i]++;S.lastBuild=i;return endTurn()}}
+
+function toBuild(){S.phase='build';
+  if(!buildTargets(S,S.w[S.cur][S.T.wi]).length)setLose(S.cur,`${label(S.cur)} 쪽이 이동 후 건설할 곳이 없어요.`);
+  after()}
+function endTurn(){const p=S.cur;endNoUp(S,p,S.T.up);
+  S.cur=1-p;S.T=newT();S.phase='select';checkStuck();after()}
+
+// 선택형 능력 버튼
+function actionList(){const p=S.cur,T=S.T,g=G[p],a=[];
+  if(S.winner>=0||!g)return a;
+  if(S.phase==='move'&&g==='prometheus'&&T.pre<0&&T.wi>=0&&(T.preMode||preTargets().length))
+    a.push({id:'pre',label:T.preMode?'🔥 먼저 짓기 취소':'🔥 먼저 짓기',on:T.preMode});
+  if(S.phase==='move2')a.push({id:'skip',label:'이동 끝내기 → 건설',go:true});
+  if(S.phase==='build'&&g==='atlas')a.push({id:'dome',label:T.domeMode?'🌍 돔 짓기 켜짐':'🌍 돔으로 짓기',on:T.domeMode});
+  if(S.phase==='build2')a.push({id:'end',label:'턴 끝내기',go:true});
+  return a}
+function press(id){const T=S.T;
+  if(id==='pre'){T.preMode=!T.preMode;return after()}
+  if(id==='dome'){T.domeMode=!T.domeMode;return after()}
+  if(id==='skip'){snap();return toBuild()}
+  if(id==='end'){snap();return endTurn()}}
 
 function after(){render();save();
   if(S.winner>=0){setTimeout(showWin,500);return}
@@ -261,86 +450,130 @@ function after(){render();save();
 
 function undo(){if(!hist.length)return;cancelAI();
   let s;do{s=JSON.parse(hist.pop())}while(cfg.mode!=='pvp'&&hist.length&&isAI(s.cur));
-  S=s;hide('ovWin');render();save();maybeAI()}
+  S=s;G=S.gods;hide('ovWin');render();save();maybeAI()}
 
 function cancelAI(){clearTimeout(aiTimer);aiTimer=null;aiPlan=null}
-function maybeAI(){if(S.winner>=0||!isAI(S.cur)||aiTimer)return;
+function maybeAI(){if(!S||S.winner>=0||!isAI(S.cur)||aiTimer)return;
   aiTimer=setTimeout(()=>{aiTimer=null;if(S.winner>=0||!isAI(S.cur))return;
-    const p=S.cur,lvl=cfg.mode==='ai2'?2:1;
-    if(S.phase==='place')return act(aiPlace(S));
-    if(S.phase==='select'){
-      aiPlan=aiChoose(S,p,lvl);
-      if(!aiPlan){const wi=S.w[p].findIndex(f=>movesFrom(S,f).length);aiPlan={wi,to:movesFrom(S,S.w[p][wi])[0],b:-1}}
-      return act(S.w[p][aiPlan.wi])}
-    if(S.phase==='move'){if(!aiPlan)aiPlan=aiChoose(S,p,lvl);return act(aiPlan.to)}
-    if(S.phase==='build'){let b=aiPlan&&aiPlan.b;const ok=buildsFrom(S,S.w[p][S.sel]);
-      if(!ok.includes(b))b=ok[0];aiPlan=null;return act(b)}
-  },S.phase==='select'?650:450)}
+    if(anyOverlay())return;   // 창이 닫히면 다시 호출됨
+    aiStep()},S.phase==='select'?650:450)}
+function aiStep(){const p=S.cur,T=S.T,lvl=cfg.mode==='ai2'?2:1;
+  if(S.phase==='place')return act(aiPlace(S));
+  if(S.phase==='select'){
+    aiPlan=aiChoose(S,p,lvl);
+    if(!aiPlan){const wi=S.w[p].findIndex((f,k)=>moveTargets(S,p,k).length);
+      aiPlan={wi,pre:-1,m1:moveTargets(S,p,wi)[0],m2:-1,b1:-1,dome:false,b2:-1}}
+    return act(S.w[p][aiPlan.wi])}
+  const P=aiPlan||{pre:-1,m1:-1,m2:-1,b1:-1,dome:false,b2:-1};
+  const tg=targets().cells,pick=c=>tg.includes(c)?c:tg[0];
+  if(S.phase==='move'){
+    if(P.pre>=0&&T.pre<0){if(!T.preMode)return press('pre');return act(pick(P.pre))}
+    return act(pick(P.m1))}
+  if(S.phase==='move2'){if(P.m2>=0&&tg.includes(P.m2))return act(P.m2);return press('skip')}
+  if(S.phase==='build'){if(P.dome&&!T.domeMode&&S.h[P.b1]<3)return press('dome');return act(pick(P.b1))}
+  if(S.phase==='build2'){if(P.b2>=0&&tg.includes(P.b2))return act(P.b2);aiPlan=null;return press('end')}}
 
-function render(){const p=S.cur,human=!isAI(p)&&S.winner<0;
-  let targets=[],cls='';
-  if(human){
-    if(S.phase==='place'){for(let i=0;i<25;i++)if(!occ(S,i))targets.push(i);cls='can-place'}
-    else if(S.phase==='move'){targets=movesFrom(S,S.w[p][S.sel]);cls='can-move'}
-    else if(S.phase==='build'){targets=buildsFrom(S,S.w[p][S.sel]);cls='can-build'}}
+function render(){const p=S.cur,T=S.T,human=!isAI(p)&&S.winner<0;
+  const tg=human?targets():{cells:[],cls:''};
   const key=S.lastBuild+'/'+S.lastTo+'/'+hist.length,changed=key!==prevKey;prevKey=key;
+  const selPh=['move','move2','build','build2'].includes(S.phase);
   let html='';
   for(let i=0;i<25;i++){const h=S.h[i];
     const fresh=changed&&i===S.lastBuild;
     let core=h===4?`<div class="dome${fresh?' fresh':''}"></div>`:'';
     for(let L=Math.min(h,3);L>=1;L--)core=`<div class="lv lv${L}${fresh&&h<4&&L===h?' fresh':''}">${core}</div>`;
-    let wk='';
-    for(const o of [0,1]){const wi=S.w[o].indexOf(i);if(wi<0)continue;
-      const sel=o===p&&wi===S.sel&&S.phase!=='over';
-      const pick=human&&o===p&&(S.phase==='select'||S.phase==='move')&&!sel&&movesFrom(S,i).length;
+    let wk='';const o=owner(S,i);
+    if(o>=0){const wi=S.w[o].indexOf(i);
+      const sel=o===p&&wi===T.wi&&selPh;
+      const pick=human&&o===p&&!sel&&(S.phase==='select'||(S.phase==='move'&&!T.locked))&&moveTargets(S,o,wi).length;
       const drop=changed&&i===S.lastTo&&!sel;
       wk=`<div class="worker p${o}${sel?' sel':''}${pick?' pick':''}${drop?' drop':''}"></div>`}
-    const c=['cell'];if(targets.includes(i))c.push(cls);if(i===S.lastFrom&&!occ(S,i))c.push('last-from');
+    const c=['cell'];if(tg.cells.includes(i))c.push(tg.cls);if(i===S.lastFrom&&!occ(S,i))c.push('last-from');
     html+=`<div class="${c.join(' ')}" data-i="${i}">${core}${wk}${h?`<span class="hb">${h===4?'돔':h+'층'}</span>`:''}</div>`}
   $('board').innerHTML=html;
 
+  const gm=!!(S.gods&&S.gods[0]);
+  $('app').classList.toggle('gm',gm);
+  $('modeTag').textContent=gm?'신 카드':'기본';
+  if(gm)$('gods').innerHTML=[0,1].map(o=>{const gd=GODS[S.gods[o]];
+    return `<div class="god${o===p&&S.winner<0?' cur':''}"><div class="chip p${o}"></div><div><b>${label(o)} · ${gd.e} ${gd.n}</b><span>${gd.d}</span></div></div>`}).join('');
+  const acts=human?actionList():[];
+  $('actions').innerHTML=acts.length?acts.map(a=>`<button data-a="${a.id}" class="${a.on?'on':''}${a.go?' go':''}">${a.label}</button>`).join('')
+    :`<div class="ph">${gm?'능력 버튼이 여기에 나타나요':''}</div>`;
+
   const cp=S.winner>=0?S.winner:p;$('chip').className='chip p'+cp;
-  let t,s='';
+  const g=G[p];let t,s='';
   if(S.winner>=0){t=`${label(S.winner)} 승리! 🎉`;s=S.reason}
   else if(isAI(p)){t='AI가 생각 중…';s=S.phase==='place'?'일꾼을 놓는 중':'잠시만 기다려 주세요'}
   else{const who=cfg.mode==='pvp'?`${NAMES[p]} 차례 · `:'내 차례 · ';
+    const athena=S.noUp===p?' · 🦉 아테나: 이번엔 올라갈 수 없어요':'';
     if(S.phase==='place'){t=who+'일꾼 놓기';s=`빈 칸을 탭하세요 (${S.w[p][0]<0?1:2}/2)`}
-    else if(S.phase==='select'){t=who+'일꾼 선택';s='움직일 일꾼을 탭하세요'}
-    else if(S.phase==='move'){t=who+'이동';s=targets.length?'초록 칸으로 이동 (오르막은 1층까지)':'이 일꾼은 움직일 수 없어요. 다른 일꾼을 고르세요'}
-    else if(S.phase==='build'){t=who+'건설';s='노란 칸에 한 층 쌓기 (3층 위는 돔)'}}
+    else if(S.phase==='select'){t=who+'일꾼 선택';s='움직일 일꾼을 탭하세요'+athena}
+    else if(S.phase==='move'){
+      if(T.preMode){t=who+'먼저 짓기';s='노란 칸에 먼저 지으세요. 이번 차례엔 올라갈 수 없어요'}
+      else if(!tg.cells.length){t=who+'이동';s='이 일꾼은 움직일 수 없어요. 다른 일꾼을 고르세요'}
+      else{t=who+'이동';
+        s=T.pre>=0?'초록 칸으로 이동 (🔥 먼저 지었으니 올라갈 수 없어요)'
+          :g==='apollo'?'초록 칸으로 이동 · ☀️ 상대 칸과 자리 바꾸기 가능'
+          :g==='minotaur'?'초록 칸으로 이동 · 🐂 상대 일꾼 밀어내기 가능'
+          :'초록 칸으로 이동 (오르막은 1층까지)';s+=athena}}
+    else if(S.phase==='move2'){t=who+'🏹 한 번 더 이동';s='초록 칸으로 이동하거나 \'이동 끝내기\'를 누르세요'}
+    else if(S.phase==='build'){t=who+'건설';
+      s=g==='atlas'?(T.domeMode?'노란 칸에 돔을 올립니다':'노란 칸에 한 층 · 🌍 돔 버튼으로 아무 층에나 돔'):'노란 칸에 한 층 쌓기 (3층 위는 돔)'}
+    else if(S.phase==='build2'){t=who+(g==='demeter'?'🌾 한 번 더 짓기':'🔨 한 층 더 짓기');
+      s=g==='demeter'?'다른 노란 칸에 짓거나 \'턴 끝내기\'를 누르세요':'같은 칸에 한 층 더 짓거나 \'턴 끝내기\'를 누르세요'}}
   $('st').textContent=t;$('ss').textContent=s;
   $('bUndo').disabled=!hist.length}
 
-function showWin(){if(S.winner<0)return;
+function showWin(){if(S.winner<0||anyOverlay())return;
   $('wChip').className='chip p'+S.winner;
   $('wT').textContent=cfg.mode==='pvp'?`${NAMES[S.winner]} 승리!`:(S.winner===AI?'AI 승리':'승리했어요! 🎉');
   $('wS').textContent=S.reason;show('ovWin')}
+function showReveal(){
+  $('reveal').innerHTML=[0,1].map(o=>{const gd=GODS[S.gods[o]];
+    return `<div class="rv"><div class="chip p${o}"></div><div class="em">${gd.e}</div><div><b>${label(o)} · ${gd.n}</b><span>${gd.d}</span></div></div>`}).join('');
+  show('ovReveal')}
 
-function save(){try{localStorage.setItem('santorini',JSON.stringify({S,hist:hist.slice(-120),cfg}))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem('santorini'));if(d&&d.S){S=d.S;hist=d.hist||[];cfg=d.cfg||cfg;return true}}catch(e){}return false}
+const SAVE_KEY='santorini-v2';
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({S,hist:hist.slice(-120),cfg}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY));
+  if(d&&d.S&&d.S.T&&d.S.gods){S=d.S;hist=d.hist||[];cfg={...cfg,...d.cfg};G=S.gods;return true}}catch(e){}return false}
 
-const show=id=>$(id).classList.add('show'),hide=id=>$(id).classList.remove('show');
+const show=id=>$(id).classList.add('show');
+const hide=id=>{$(id).classList.remove('show');if(S&&!anyOverlay())maybeAI()};
 let pend={...cfg};
 function syncSeg(){
+  document.querySelectorAll('#segRules button').forEach(b=>b.classList.toggle('on',b.dataset.v===pend.rules));
+  $('godOpts').classList.toggle('show',pend.rules==='gods');
   document.querySelectorAll('#segMode button').forEach(b=>b.classList.toggle('on',b.dataset.v===pend.mode));
+  const pv=pend.mode==='pvp';
   const fb=document.querySelectorAll('#segFirst button');
-  fb[0].textContent=pend.mode==='pvp'?'주황':'나';fb[1].textContent=pend.mode==='pvp'?'보라':'AI';
-  fb.forEach(b=>b.classList.toggle('on',+b.dataset.v===pend.first))}
-function openNew(){pend={...cfg};syncSeg();hide('ovWin');show('ovNew')}
+  fb[0].textContent=pv?'주황':'나';fb[1].textContent=pv?'보라':'AI';
+  fb.forEach(b=>b.classList.toggle('on',+b.dataset.v===pend.first));
+  $('lbl0').textContent=pv?'주황':'나';$('lbl1').textContent=pv?'보라':'AI';
+  $('sel0').value=pend.pick[0];$('sel1').value=pend.pick[1]}
+function openNew(){pend={...cfg,pick:cfg.pick.slice()};syncSeg();hide('ovWin');show('ovNew')}
 
 function boot(){
+  const opts='<option value="random">🎲 무작위</option>'+GOD_KEYS.map(k=>`<option value="${k}">${GODS[k].e} ${GODS[k].n}</option>`).join('');
+  $('sel0').innerHTML=opts;$('sel1').innerHTML=opts;
+  $('glist').innerHTML=GOD_KEYS.map(k=>`<div><b>${GODS[k].e} ${GODS[k].n}</b><br>${GODS[k].d}</div>`).join('');
   $('board').addEventListener('click',e=>{const c=e.target.closest('.cell');if(!c||!S||S.winner>=0||isAI(S.cur))return;act(+c.dataset.i)});
+  $('actions').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!S||isAI(S.cur)||S.winner>=0)return;press(b.dataset.a)});
   $('bNew').onclick=openNew;$('bUndo').onclick=undo;
   $('bRules').onclick=()=>show('ovRules');$('bRulesClose').onclick=()=>hide('ovRules');
+  $('segRules').onclick=e=>{const b=e.target.closest('button');if(b){pend.rules=b.dataset.v;syncSeg()}};
   $('segMode').onclick=e=>{const b=e.target.closest('button');if(b){pend.mode=b.dataset.v;syncSeg()}};
   $('segFirst').onclick=e=>{const b=e.target.closest('button');if(b){pend.first=+b.dataset.v;syncSeg()}};
+  $('sel0').onchange=e=>{pend.pick[0]=e.target.value};$('sel1').onchange=e=>{pend.pick[1]=e.target.value};
   $('bCancel').onclick=()=>{hide('ovNew');if(!S)newGame()};
-  $('bStart').onclick=()=>{cfg={...pend};hide('ovNew');newGame()};
-  $('bView').onclick=()=>hide('ovWin');$('bAgain').onclick=()=>{hide('ovWin');newGame()};
+  $('bStart').onclick=()=>{cfg={...pend,pick:pend.pick.slice()};$('ovNew').classList.remove('show');newGame()};
+  $('bReveal').onclick=()=>hide('ovReveal');
+  $('bView').onclick=()=>hide('ovWin');$('bAgain').onclick=()=>{$('ovWin').classList.remove('show');newGame()};
   document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o&&o.id!=='ovNew')hide(o.id)}));
   document.addEventListener('gesturestart',e=>e.preventDefault());
   if(load()){render();if(S.winner<0)maybeAI()}
-  else{cfg={mode:'pvp',first:0};newGame();openNew()}
+  else{newGame();openNew()}
 }
 if(typeof document!=='undefined')boot();
 </script>
